@@ -10,6 +10,9 @@
             <DataTemplate DataType="{x:Type vm:hartLogInputVM}" >
                 <local:hartLogInputView/>
             </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:mainWindowVM}" >
+                <local:mainWindowView/>
+            </DataTemplate>
         </ResourceDictionary>
     </Application.Resources>
 </Application>
