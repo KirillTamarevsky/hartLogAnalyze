@@ -1,0 +1,15 @@
+﻿<Application x:Class="hartLogAnalyze.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:hartLogAnalyze"
+             xmlns:vm="clr-namespace:hartLogAnalyze.vm" 
+             StartupUri="MainWindow.xaml"
+             >
+    <Application.Resources>
+        <ResourceDictionary>
+            <DataTemplate DataType="{x:Type vm:hartLogInputVM}" >
+                <local:hartLogInputView/>
+            </DataTemplate>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>
