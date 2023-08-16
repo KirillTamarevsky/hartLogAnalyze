@@ -11,10 +11,10 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="20"/>
         </Grid.RowDefinitions>
-        <TextBox Grid.Row="0" Text="{Binding HartLog, UpdateSourceTrigger=LostFocus}"
+        <TextBox Grid.Row="0" Text="{Binding HartLog, UpdateSourceTrigger=PropertyChanged}"
                  AcceptsReturn="True"
                  
                  />
-        <Button   Grid.Row="1">OK</Button>
+        <Button   Grid.Row="1" Command="{Binding OKCommand}">OK</Button>
     </Grid>
 </UserControl>

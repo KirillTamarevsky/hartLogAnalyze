@@ -23,7 +23,12 @@ namespace hartLogAnalyze.vm
         }
         public mainWindowVM()
         {
-                activeVM = new hartLogInputVM();
+                activeVM = new hartLogInputVM(this);
+        }
+
+        public void ShowVM(baseVM vm)
+        {
+            ActiveVM = vm;
         }
     }
 }
