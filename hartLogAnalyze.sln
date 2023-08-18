@@ -5,6 +5,11 @@ VisualStudioVersion = 17.6.33723.286
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "hartLogAnalyze", "hartLogAnalyze\hartLogAnalyze.csproj", "{6CA02F2A-EE2C-4C55-86DA-C982F74E4FA0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestProject1", "TestProject1\TestProject1.csproj", "{B707EDDE-F4E9-4C8B-923A-D3CA4BAFAB78}"
+	ProjectSection(ProjectDependencies) = postProject
+		{6CA02F2A-EE2C-4C55-86DA-C982F74E4FA0} = {6CA02F2A-EE2C-4C55-86DA-C982F74E4FA0}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +20,10 @@ Global
 		{6CA02F2A-EE2C-4C55-86DA-C982F74E4FA0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6CA02F2A-EE2C-4C55-86DA-C982F74E4FA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6CA02F2A-EE2C-4C55-86DA-C982F74E4FA0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B707EDDE-F4E9-4C8B-923A-D3CA4BAFAB78}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B707EDDE-F4E9-4C8B-923A-D3CA4BAFAB78}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B707EDDE-F4E9-4C8B-923A-D3CA4BAFAB78}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B707EDDE-F4E9-4C8B-923A-D3CA4BAFAB78}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

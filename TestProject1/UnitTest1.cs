@@ -1,21 +1,17 @@
-﻿using hartLogAnalyze.vm;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace hartLogAnalyze.tests
+using hartLogAnalyze.vm;
+
+namespace TestProject1
 {
     [TestClass]
-    public class TestAnalyzeHARTLog
+    public class UnitTest1
     {
         [TestMethod]
         public void TestCreate()
         {
             var testHartLogString = getHartLogString();
             var analyzehartlogVM = new AnalyzeHARTLogVM(null, testHartLogString);
+            Assert.IsNull(analyzehartlogVM);
 
         }
         string getHartLogString()
