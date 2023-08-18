@@ -14,7 +14,7 @@ namespace hartLogAnalyze.vm
             mainWindowVM = mainWindow;
             HartCommands = new List<hartCommand>();
 
-            Regex regex = new Regex(@"cmd[\s:]*<(\d*)>[\s]*[\w\s\d\n:\-<>]*data[:\s]*<([\d\w\s]*)>");
+            Regex regex = new Regex(@"CMD[\s:]*<(\d*)>[\s]*[\w\s\d\n:\-<>]*DATA[:\s]*<([\d\w\s]*)>");
             MatchCollection matches = regex.Matches(hartlog);
             if (matches.Count > 0)
             {
