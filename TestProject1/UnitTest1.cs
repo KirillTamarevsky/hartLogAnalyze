@@ -11,7 +11,7 @@ namespace TestProject1
         {
             var testHartLogString = getHartLogString();
             var analyzehartlogVM = new AnalyzeHARTLogVM(null, testHartLogString);
-            Assert.IsNull(analyzehartlogVM);
+            Assert.IsTrue(analyzehartlogVM.HartCommands.Count == 2);
 
         }
         string getHartLogString()

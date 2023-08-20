@@ -6,9 +6,9 @@
         xmlns:local="clr-namespace:hartLogAnalyze"
         xmlns:vm="clr-namespace:hartLogAnalyze.vm"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800"
+        Title="Анализатор лога HART" Height="450" Width="800"
         >
     <ContentControl>
-        <vm:mainWindowVM/>
+        <vm:AnalyzeHARTLogVM/>
     </ContentControl>
 </Window>

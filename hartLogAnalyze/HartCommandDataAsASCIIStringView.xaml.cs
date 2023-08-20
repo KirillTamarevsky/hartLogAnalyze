@@ -16,11 +16,11 @@ using System.Windows.Shapes;
 namespace hartLogAnalyze
 {
     /// <summary>
-    /// Interaction logic for hartLogInputView.xaml
+    /// Interaction logic for HartCommandDataAsASCIIStringView.xaml
     /// </summary>
-    public partial class hartLogInputView : UserControl
+    public partial class HartCommandDataAsASCIIStringView : UserControl
     {
-        public hartLogInputView()
+        public HartCommandDataAsASCIIStringView()
         {
             InitializeComponent();
         }
