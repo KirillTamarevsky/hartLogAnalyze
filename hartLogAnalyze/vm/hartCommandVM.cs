@@ -10,6 +10,8 @@ namespace hartLogAnalyze.vm
 {
     public class hartCommandVM : baseVM
     {
+        public DateTime DateTime { get; }
+        public int SEQID { get; }
         public int Number { get; }
         public byte[] QueryData { get; }
         public byte[] AnswerData { get; }
@@ -17,8 +19,10 @@ namespace hartLogAnalyze.vm
         public ObservableCollection<object> QueryDataRepresentations { get; set; }
         public ObservableCollection<object> AnswerDataRepresentations { get; set; }
 
-        public hartCommandVM(int num, byte[] queryData, byte[] answData)
+        public hartCommandVM(DateTime _datetime, int seqid, int num, byte[] queryData, byte[] answData)
         {
+            DateTime = _datetime;
+            SEQID = seqid;
             Number = num;
             QueryData = queryData;
             AnswerData = answData;

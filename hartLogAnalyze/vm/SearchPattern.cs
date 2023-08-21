@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Markup;
 
 namespace hartLogAnalyze.vm
 {
@@ -24,41 +25,59 @@ namespace hartLogAnalyze.vm
                 }
             }
         }
-        public abstract void Visit(hartCommandVM hartCommandVM);
-        public virtual void Process(hartCommandVM hartCommandVM, Action<ObservableCollection<object>, byte[]> processFunc)
+        public virtual void Visit(hartCommandVM hartCommandVM)
         {
             hartCommandVM.QueryDataRepresentations.Clear();
-            processFunc(hartCommandVM.QueryDataRepresentations, hartCommandVM.QueryData);
+            if (hartCommandVM.QueryData.Length == 0)
+            {
+                hartCommandVM.QueryDataRepresentations.Add(new TextStringVM("нет данных"));
+            }
+            else
+            {
+                Process(hartCommandVM.QueryDataRepresentations, hartCommandVM.QueryData);
+                if ( hartCommandVM.QueryDataRepresentations.Count == 0)
+                {
+                    hartCommandVM.QueryDataRepresentations.Add(new TextStringVM("нет совпадений"));
+                }
+            }
+
             hartCommandVM.AnswerDataRepresentations.Clear();
-            processFunc(hartCommandVM.AnswerDataRepresentations, hartCommandVM.AnswerData);
+            if (hartCommandVM.AnswerData.Length == 0)
+            { 
+                hartCommandVM.AnswerDataRepresentations.Add(new TextStringVM("нет данных"));
+            }    
+            else
+            {
+                Process(hartCommandVM.AnswerDataRepresentations, hartCommandVM.AnswerData);
+                if (hartCommandVM.AnswerDataRepresentations.Count == 0)
+                {
+                    hartCommandVM.AnswerDataRepresentations.Add(new TextStringVM("нет совпадений"));
+                }
+            }
         }
+        public abstract void Process(ObservableCollection<object> observableCollection, byte[] data);
 
     }
     public class RawHexStringSearchPattern : SearchPattern
     {
         public override string PatternName { get => "RawHex"; }
 
-        public override void Visit(hartCommandVM hartCommandVM)
+        public override void Process(ObservableCollection<object> observableCollection, byte[] data)
         {
-            Action<ObservableCollection<object>, byte[]> processFunc = (observableCollection, data) =>
+            observableCollection.Clear();
+            string displayText = "no answer data";
+            if (data.Length == 0)
             {
-                observableCollection.Clear();
-                string displayText = "no answer data";
-                if (data.Length == 0)
-                {
-                    displayText = "answer data length == 0";
-                }
-                else
-                {
-                    displayText = BitConverter.ToString(data);
-                }
-                if (string.IsNullOrEmpty(PatternToSearch) || displayText.Contains(PatternToSearch, StringComparison.OrdinalIgnoreCase))
-                {
-                    observableCollection.Add(new TextStringVM(displayText));
-                }
-            };
-
-            Process(hartCommandVM, processFunc);
+                displayText = "answer data length == 0";
+            }
+            else
+            {
+                displayText = BitConverter.ToString(data);
+            }
+            if (string.IsNullOrEmpty(PatternToSearch) || displayText.Contains(PatternToSearch, StringComparison.OrdinalIgnoreCase))
+            {
+                observableCollection.Add(new TextStringVM(displayText));
+            }
         }
 
     }
@@ -66,18 +85,27 @@ namespace hartLogAnalyze.vm
     {
         public override string PatternName { get => "ASCIIString"; }
 
-        public override void Visit(hartCommandVM hartCommandVM)
+        public override void Process(ObservableCollection<object> observableCollection, byte[] data)
         {
-            Action<ObservableCollection<object>, byte[]> processFunc = (observableCollection, data) =>
+            observableCollection.Clear();
+            var asciiString = ASCIIEncoding.ASCII.GetString(data);
+            if ( !string.IsNullOrEmpty(asciiString) && ( string.IsNullOrEmpty(PatternToSearch) || asciiString.Contains(PatternToSearch, StringComparison.OrdinalIgnoreCase)) )
             {
-                observableCollection.Clear();
-                var asciiString = ASCIIEncoding.ASCII.GetString(data);
-                if (string.IsNullOrEmpty(PatternToSearch) || asciiString.Contains(PatternToSearch, StringComparison.OrdinalIgnoreCase))
+                var compositeTextStringVM = new CompositeTextStringVM();
+
+                foreach (var item in asciiString)
                 {
-                    observableCollection.Add(new TextStringVM(asciiString));
+                    if (char.IsControl(item))
+                    {
+                        compositeTextStringVM.Items.Add(new ControlCharacterVM ($"0x{Convert.ToByte(item).ToString("x2")}") );
+                    }
+                    else
+                    {
+                        compositeTextStringVM.Items.Add(new TextStringVM( item.ToString() ) );
+                    }
                 }
-            };
-            Process(hartCommandVM, processFunc);
+                observableCollection.Add( compositeTextStringVM );
+            }
         }
     }
     public class TextStringVM : baseVM
@@ -88,36 +116,47 @@ namespace hartLogAnalyze.vm
             DisplayString = stringToDisplay;
         }
     }
-
+    public class CompositeTextStringVM : baseVM
+    {
+        public ObservableCollection<baseVM> Items { get; }
+        public CompositeTextStringVM()
+        {
+            Items = new ObservableCollection<baseVM>();
+        }
+    }
+    public class ControlCharacterVM : baseVM
+    {
+        public string DisplayString { get; }
+        public ControlCharacterVM( string text)
+        {
+                DisplayString= text;
+        }
+    }
 
     public class PackedASCIIStringSearchPattern : SearchPattern
     {
         public override string PatternName { get => "PackedASCIIString"; }
 
-        public override void Visit(hartCommandVM hartCommandVM)
+        public override void Process(ObservableCollection<object> observableCollection, byte[] data)
         {
-            Action<ObservableCollection<object>, byte[]> processFunc = (observableCollection, data) =>
+            observableCollection.Clear();
+            var bytearr = data;
+            string unpackedString = string.Empty;
+            int offset = 0;
+            while (bytearr.Length >= 3)
             {
-                observableCollection.Clear();
-                var bytearr = data;
-                string unpackedString = string.Empty;
-                int offset = 0;
-                while (bytearr.Length >= 3)
+                var packedStringParts =
+                    Enumerable.Range(0, (bytearr.Length / 3) * 3)
+                    .Where(x => x % 3 == 0)
+                    .Select(x => HART_unpack_3bytes_to_string(new byte[] { bytearr[x], bytearr[x + 1], bytearr[x + 2] }));
+                unpackedString = string.Join(null, packedStringParts);
+                if (string.IsNullOrEmpty(PatternToSearch) || unpackedString.Contains(PatternToSearch, StringComparison.OrdinalIgnoreCase))
                 {
-                    var packedStringParts =
-                        Enumerable.Range(0, (bytearr.Length / 3) * 3)
-                        .Where(x => x % 3 == 0)
-                        .Select(x => HART_unpack_3bytes_to_string(new byte[] { bytearr[x], bytearr[x + 1], bytearr[x + 2] }));
-                    unpackedString = string.Join(null, packedStringParts);
-                    if (string.IsNullOrEmpty(PatternToSearch) || unpackedString.Contains(PatternToSearch, StringComparison.OrdinalIgnoreCase))
-                    {
-                        observableCollection.Add(new TextStringVM($"смещение ({offset})={unpackedString}"));
-                    }
-                    bytearr = bytearr.SubArray(1, bytearr.Length - 1);
-                    offset++;
+                    observableCollection.Add(new TextStringVM($"смещение ({offset})={unpackedString}"));
                 }
-            };
-            Process(hartCommandVM, processFunc);
+                bytearr = bytearr.SubArray(1, bytearr.Length - 1);
+                offset++;
+            }
         }
         private string HART_unpack_3bytes_to_string(byte[] bytes)
         {
@@ -143,27 +182,22 @@ namespace hartLogAnalyze.vm
     {
         public override string PatternName { get => "IEEE754"; }
 
-        public override void Visit(hartCommandVM hartCommandVM)
+        public override void Process(ObservableCollection<object> observableCollection, byte[] data)
         {
-            Action<ObservableCollection<object>, byte[]> processFunc = (observableCollection, data) =>
+            observableCollection.Clear();
+            var bytearr = data;
+            int offset = 0;
+            while (bytearr.Length >= 4)
             {
-                observableCollection.Clear();
-                var bytearr = data;
-                int offset = 0;
-                while (bytearr.Length >= 4)
+                Single ieeeSingle = BitConverter.ToSingle(new byte[] { bytearr[3], bytearr[2], bytearr[1], bytearr[0] }, 0);
+                var ieeeString = ieeeSingle.ToString("0.00000000");
+                if (string.IsNullOrEmpty(PatternToSearch) || ieeeString.Replace(',', '.').Contains(PatternToSearch.Replace(',', '.')))
                 {
-                    Single ieeeSingle = BitConverter.ToSingle(new byte[] { bytearr[3], bytearr[2], bytearr[1], bytearr[0] }, 0);
-                    var ieeeString = ieeeSingle.ToString("0.00000000");
-                    if (string.IsNullOrEmpty(PatternToSearch) || ieeeString.Replace(',', '.').Contains(PatternToSearch.Replace(',', '.')))
-                    {
-                        observableCollection.Add(new TextStringVM($"смещение ({offset})={ieeeString}"));
-                    }
-                    bytearr = bytearr.SubArray(1, bytearr.Length - 1);
-                    offset++;
+                    observableCollection.Add(new TextStringVM($"смещение ({offset})={ieeeString}"));
                 }
-            };
-            Process(hartCommandVM, processFunc);
-
+                bytearr = bytearr.SubArray(1, bytearr.Length - 1);
+                offset++;
+            }
         }
     }
 }

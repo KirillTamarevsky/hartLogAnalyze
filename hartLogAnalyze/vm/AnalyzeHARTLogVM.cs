@@ -86,7 +86,7 @@ namespace hartLogAnalyze.vm
         {
             hartCommands.Clear();
 
-            Regex regex = new Regex(@"CMD[\s:]*<(\d*)>[\s]*[\w\s\d\n:\-<>]*DATA[:\s]*<([\d\w\s]*)>[\w\s\d\n:\-<>]*DATA[:\s]*<([\d\w\s]*)>");
+            Regex regex = new Regex(@"(\d\d\d\d\-\d\d\-\d\d\s*\d\d:\d\d:\d\d):\s*.*SEQID\s*=\s*(\d*)[\w\s\d\n:\-<>]*CMD[\s:]*<(\d*)>[\s]*[\w\s\d\n:\-<>]*DATA[:\s]*<([\d\w\s]*)>[\w\s\d\n:\-<>]*DATA[:\s]*<([\d\w\s]*)>");
             MatchCollection matches = regex.Matches(hartlog);
 
             if (matches.Count > 0)
@@ -95,9 +95,9 @@ namespace hartLogAnalyze.vm
                 {
                     if (match.Success)
                     {
-                        if (int.TryParse(match.Groups[1].Value, out int cmdnumber))
+                        if (int.TryParse(match.Groups[3].Value, out int cmdnumber))
                         {
-                            var hartcommand = new hartCommandVM(cmdnumber, StringToByteArray(match.Groups[2].Value), StringToByteArray(match.Groups[3].Value));
+                            var hartcommand = new hartCommandVM(DateTime.Parse(match.Groups[1].Value), int.Parse(match.Groups[2].Value), cmdnumber, StringToByteArray(match.Groups[4].Value), StringToByteArray(match.Groups[5].Value));
                             hartCommands.Add(hartcommand);
                         }
                     }

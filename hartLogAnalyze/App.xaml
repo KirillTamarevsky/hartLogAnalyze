@@ -16,6 +16,12 @@
             <DataTemplate DataType="{x:Type vm:TextStringVM}" >
                 <local:HartCommandDataAsASCIIStringView/>
             </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:CompositeTextStringVM}" >
+                <local:CompositeTextStringView/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:ControlCharacterVM}" >
+                <local:ControlCharacterVM/>
+            </DataTemplate>
         </ResourceDictionary>
     </Application.Resources>
 </Application>
